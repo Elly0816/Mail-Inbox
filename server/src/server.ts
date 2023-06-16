@@ -7,6 +7,7 @@ import { serializeUser } from './middlewares/auth.middleware';
 import loginRoute from './routes/login.routes';
 import logoutRoute from './routes/logout.routes';
 import threadRoute from './routes/thread.routes';
+import messageRoute from './routes/message.routes';
 
 config();
 
@@ -28,6 +29,7 @@ app.use(registerRoute);
 app.use(threadRoute);
 app.use(loginRoute);
 app.use(logoutRoute);
+app.use(messageRoute);
 
 const PORT = process.env.PORT;
 
