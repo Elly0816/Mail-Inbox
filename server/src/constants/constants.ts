@@ -7,6 +7,7 @@ export enum protectedEndpoints {
   logout = 'logout',
   message = 'message',
   user = 'user',
+  thread = 'thread',
 }
 
 export enum Headers {

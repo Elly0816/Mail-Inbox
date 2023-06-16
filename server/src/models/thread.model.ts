@@ -1,12 +1,13 @@
 import { Schema } from 'mongoose';
 import mongoose from '../db/db';
+import { messageFromDb } from './message.model';
 
-const Thread = {
+const thread = {
   createdAt: {
     type: Date,
     default: Date.now,
   },
-  lasModified: {
+  lastModified: {
     type: Date,
     default: Date.now,
   },
@@ -16,10 +17,16 @@ const Thread = {
 export interface threadFromDb {
   _id: mongoose.Types.ObjectId;
   createdAt: Date;
-  modifiedLast: Date;
+  lastModified: Date;
   messages: [mongoose.Types.ObjectId];
 }
 
-const threadSchema = new Schema(Thread);
+export interface thread {
+  messages: [messageFromDb['_id']];
+}
 
-export { threadSchema };
+const threadSchema = new Schema(thread);
+
+const Thread = mongoose.model('Thread', threadSchema);
+
+export { Thread };

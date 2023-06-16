@@ -6,9 +6,10 @@ export interface message {
   body: string;
   from: string;
   to: string;
+  threadId: string;
 }
 
-const Message = {
+const message = {
   title: String,
   body: String,
   from: String,
@@ -21,6 +22,7 @@ const Message = {
     type: Date,
     default: Date.now,
   },
+  threadId: String,
 };
 
 export interface messageFromDb extends message {
@@ -29,6 +31,8 @@ export interface messageFromDb extends message {
   date: Date;
 }
 
-const messageSchema = new Schema(Message);
+const messageSchema = new Schema(message);
 
-export { messageSchema };
+const Message = mongoose.model('Message', messageSchema);
+
+export { Message };

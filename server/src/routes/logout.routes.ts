@@ -1,5 +1,5 @@
 import { protectedEndpoints } from '../constants/constants';
-import { deSerializeUser } from '../middlewares/auth.middlewares';
+import { deSerializeUser } from '../middlewares/auth.middleware';
 import { Request, Response, Router } from 'express';
 
 const logoutRoute = Router();

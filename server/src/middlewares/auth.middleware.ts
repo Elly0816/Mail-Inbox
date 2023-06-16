@@ -65,54 +65,6 @@ const serializeUser = (
       //No access token
       res.status(401).json({ message: 'UnAuthorized' });
     }
-    // const accessUser = verifyAccess(access as string);
-
-    // if (access) {
-    //   let user = jwt.decode(access as string);
-    //   if (user) {
-    //     req.user = user as userFromDb;
-    //     if (req.user == accessUser) {
-    //       next();
-    //     } else {
-    //       res.status(401).json({ message: 'Unauthorized!' });
-    //     }
-    //   } else {
-    //     res.status(401).json({
-    //       token: `Error with decoding token: ${access}`,
-    //     });
-    //   }
-    // } else {
-    //   let user = req.user;
-    //   if (user) {
-    //     if (accessUser === user) {
-    //       next();
-    //     } else {
-    //       /*
-    //                     If there was an error
-    //                     Try again with the refresh token
-    //                     if so, give the user a new access token and next()
-    //             */
-
-    //       const refreshUser = verifyRefresh(refresh as string);
-    //       if (refreshUser === user) {
-    //         const access = signAccess(user as userFromDb);
-    //         res.setHeader(Headers.access, access);
-    //         next();
-    //       } else {
-    //         /*
-    //                         If there is still an error
-    //                         The user is unauthorised
-    //                         set the req.user object to undefined
-
-    //                     */
-    //         req.user = undefined;
-    //         res.status(401).json({ message: 'Unauthorized!' });
-    //       }
-    //     }
-    //   } else {
-    //     res.status(401).json({ message: 'Unauthorized!' });
-    //   }
-    // }
   }
 };
 

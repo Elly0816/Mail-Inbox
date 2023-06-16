@@ -3,9 +3,10 @@ import homeRoute from './routes/home.routes';
 import { config } from 'dotenv';
 import { userFromDb } from './models/user.model';
 import registerRoute from './routes/register.routes';
-import { serializeUser } from './middlewares/auth.middlewares';
+import { serializeUser } from './middlewares/auth.middleware';
 import loginRoute from './routes/login.routes';
 import logoutRoute from './routes/logout.routes';
+import threadRoute from './routes/thread.routes';
 
 config();
 
@@ -24,6 +25,7 @@ app.use(json());
 app.use(serializeUser);
 app.use(homeRoute);
 app.use(registerRoute);
+app.use(threadRoute);
 app.use(loginRoute);
 app.use(logoutRoute);
 
