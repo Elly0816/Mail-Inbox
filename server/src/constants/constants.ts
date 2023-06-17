@@ -13,4 +13,6 @@ export enum protectedEndpoints {
 export enum Headers {
   access = 'access',
   refresh = 'refresh',
+  cors = 'Access-Control-Allow-Origin',
+  headers = 'Access-Control-Expose-Headers',
 }

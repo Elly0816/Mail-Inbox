@@ -3,7 +3,6 @@ import './homepage.css';
 import React, { Fragment } from 'react';
 import useFetch from '../../hooks/useFetch';
 import Loading from '../../components/loading/Loading';
-import useLocalStorage from '../../hooks/useLocalStorage';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface homePageProp {}
@@ -11,8 +10,7 @@ export interface homePageProp {}
 const HomePage: React.FC<homePageProp> = () => {
   //   const [threads, setThread] = useThread();
   const navigate = useNavigate();
-  const [item] = useLocalStorage({ name: 'thing', value: 'another' });
-  const { data, error, loading, setCurrent } = useFetch({
+  const { data, error, loading } = useFetch({
     path: '',
     method: 'get',
   });
@@ -35,7 +33,7 @@ const HomePage: React.FC<homePageProp> = () => {
     <Fragment>
       {child}
       {/* <div>{item as string}</div> */}
-      <div>Hi! I'm Eleazar</div>
+      {/* <div>Hi! I'm Eleazar</div> */}
       <button
         onClick={() => {
           navigate('/login');

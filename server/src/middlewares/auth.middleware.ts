@@ -6,7 +6,7 @@ import {
   verifyAccess,
   verifyRefresh,
 } from '../controllers/auth.controller';
-import { userFromDb } from '../models/user.model';
+import { User, userFromDb } from '../models/user.model';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
 import { config } from 'dotenv';
@@ -16,12 +16,32 @@ config();
 
 
 */
-const serializeUser = (
+const serializeUser = async (
   req: Request,
   res: Response,
   next: NextFunction
-): void => {
-  res.setHeader('Access-Control-Allow-Credentials', 'true');
+): Promise<void> => {
+  // console.log('\n');
+  // console.log('\n');
+  // console.log('request');
+  // console.log('\n');
+  // console.log(req.headers);
+  // console.log('\n');
+  // console.log('\n');
+  res.setHeader(Headers.cors, '*');
+  res.setHeader(Headers.headers, 'Authorization');
+  // const accessUser = verifyAccess(req.headers['access'] as string)
+  // const refreshUser = verifyRefresh(req.headers['refresh'] as string)
+  // if (accessUser){
+  //   const user = await User.findById(accessUser._id).lean() as userFromDb;
+  //   if (user){
+  //     req.user = user as userFromDb;
+  // } else if (refreshUser){
+  //       const user = await User.findById(refreshUser._id).lean() as userFromDb;
+  //       if (user){
+  //         req.user = user as userFromDb;
+  //       }
+  // }
   const url = req.url.split('/');
   console.log(`The user is: ${req.user}`);
   if (
@@ -30,11 +50,16 @@ const serializeUser = (
   ) {
     next();
   } else {
-    const { access, refresh } = req.headers as {
-      access: string;
-      refresh: string;
-    };
-    if (access) {
+    // const { access, refresh } = req.headers as {
+    //   access: string;
+    //   refresh: string;
+    // };
+    const auth = JSON.parse(req.headers.authorization as string);
+    const access = auth?.access.split(' ')[1] as string;
+    const refresh = auth?.refresh.split(' ')[1] as string;
+    // const refresh = req.headers.Refresh as string;
+    const accessUser = verifyAccess(req.headers['access'] as string);
+    if (accessUser) {
       const decoded = jwt.decode(access);
       req.user = decoded as unknown as userFromDb;
       console.log(req.user);
@@ -43,17 +68,16 @@ const serializeUser = (
                 is valid and is the user
                 if so, next()
         */
-      const accessUser = verifyAccess(access);
-      if (_.isEqual(decoded, accessUser)) {
+      if (_.isEqual(decoded, accessUser) && decoded && accessUser) {
         next();
       } else {
         //Access decoded token and access user do not match
-        const refreshUser = verifyRefresh(refresh);
+        const refreshUser = verifyRefresh(req.headers['refresh'] as string);
         const decoded = jwt.decode(refresh);
-        console.log(refreshUser);
+        console.log('\n\n' + refreshUser);
         console.log(decoded);
-        console.log('Refresh user and decoded are above');
-        if (_.isEqual(decoded, refreshUser)) {
+        console.log('Refresh user and decoded are above\n\n');
+        if (_.isEqual(decoded, refreshUser) && decoded && refreshUser) {
           req.user = refreshUser;
           const accessToken = signAccess(req.user as userFromDb);
           const refreshToken = signRefresh(req.user as userFromDb);

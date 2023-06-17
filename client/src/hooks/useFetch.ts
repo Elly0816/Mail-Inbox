@@ -1,8 +1,10 @@
 import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import instance from '../controllers/axios.controllers';
 import useLocalStorage from './useLocalStorage';
 import { AxiosError, AxiosResponse } from 'axios';
 import { user, message } from '../utils/types/types.utils';
+import { useNavigate } from 'react-router-dom';
 
 export interface Usefetch {
   loading: boolean;
@@ -12,10 +14,12 @@ export interface Usefetch {
 }
 
 export interface UseFetchProps {
-  path: string;
-  method: 'get' | 'post' | 'put' | 'patch' | 'delete';
+  path: string | undefined;
+  method: 'get' | 'post' | 'put' | 'patch' | 'delete' | undefined;
   formdata?: user | message | undefined;
 }
+
+const BASE = 'http://localhost:5000';
 
 const useFetch = ({ path, method, formdata }: UseFetchProps): Usefetch => {
   const [loading, setLoading] = useState<boolean>(true);
@@ -24,36 +28,57 @@ const useFetch = ({ path, method, formdata }: UseFetchProps): Usefetch => {
     method,
     formdata,
   });
+
+  const location = useLocation();
   //   console.log(current);
-  const [access] = useLocalStorage({
-    name: 'access',
-  });
-  const [refresh] = useLocalStorage({
-    name: 'refresh',
-  });
+  // const [access] = useLocalStorage({
+  //   name: 'access',
+  // });
+  // const [refresh] = useLocalStorage({
+  //   name: 'refresh',
+  // });
   const [error, setError] = useState<Error | undefined>(undefined);
   const [data, setData] = useState();
 
-  if (method != 'get' && !formdata) {
+  if (method && method != 'get' && !formdata) {
     setError(new Error('There was no data given'));
   }
 
+  const navigate = useNavigate();
+
   useEffect(() => {
+    console.log('current');
+    console.log(current);
     const controller = new AbortController();
     const config = {
-      method: method,
-      url: path,
-      Headers: [{ access: access }, { refresh: refresh }],
+      method: current.method,
+      url: current.path,
       signal: controller.signal,
+      data: current.formdata,
     };
+    // console.log(config);
+    // const headers = new Headers ({
+    //   'Content-Type': 'application/json;charset=utf-8',
+    //   'Authorization':JSON.stringify({access:access?access:"", refresh:refresh?refresh:""},
+    //   )
+    // });
+    // const config = {
+    //   method: current.method?.toUpperCase(),
+    //   body: current.formdata,
+    //   signal:controller.signal,
+    //   url: BASE+path,
+    //   headers: headers
+    // }
     switch (current.method) {
       case 'get':
+        // fetch(config.url, ).then()
+
         // try {
         instance(config)
           .then(async (res: AxiosResponse) => {
             console.log(res);
             if (res.status.toString()[0] !== '2') {
-              setError(new Error(res.status.toString()));
+              setError(new Error(res.statusText));
               setLoading(false);
               setData(res.data);
             } else {
@@ -65,30 +90,51 @@ const useFetch = ({ path, method, formdata }: UseFetchProps): Usefetch => {
           })
           .catch((err: AxiosError) => {
             console.log('error');
-            console.log(err.message);
-            setError(new Error(err.message));
+            console.log(err);
+            const text = err.response?.statusText;
+            setError(new Error(err.message + '\n' + text));
             setData(undefined);
             setLoading(false);
           });
         break;
-
-      // catch (e) {
-      //   console.log('error');
-      //   console.log(e);
-      //   setError(e as Error);
-      //   setData(undefined);
-      //   setLoading(false);
-      // }
-      // break;
       case 'post':
       case 'put':
       case 'patch':
+        instance(config)
+          .then(async (res: AxiosResponse) => {
+            console.log(res.headers);
+            const resData = await res.data;
+            // const access = res.config
+            console.log(res);
+            if (res.status.toString()[0] !== '2') {
+              setError(new Error(res.statusText));
+              setLoading(false);
+              setData(resData);
+            } else {
+              setData(resData);
+              setLoading(false);
+              setError(undefined);
+            }
+          })
+          .catch((err: AxiosError) => {
+            console.log('error');
+            console.log(err);
+            const text = err.response?.statusText;
+            setError(new Error(err.message + '\n' + text));
+            setData(undefined);
+            setLoading(false);
+          });
+
+        break;
       case 'delete':
       default:
+        setLoading(false);
+        setError(undefined);
+        setData(undefined);
         break;
     }
     return () => controller.abort();
-  }, [access, current, method, path, refresh]);
+  }, [current]);
 
   console.log({
     loading: loading,
@@ -96,6 +142,13 @@ const useFetch = ({ path, method, formdata }: UseFetchProps): Usefetch => {
     data: data,
     setCurrent: setCurrent,
   });
+
+  useEffect(() => {
+    error?.message.toLowerCase().includes('unauthorized') &&
+      !location.pathname.includes('/login') &&
+      navigate('/login');
+  });
+
   return { loading, error, data, setCurrent };
 };
 

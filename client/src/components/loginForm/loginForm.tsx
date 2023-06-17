@@ -1,5 +1,6 @@
 import React, { useEffect, useRef } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
+import useFetch, { Usefetch } from '../../hooks/useFetch';
 
 type Inputs = {
   email: string;
@@ -7,15 +8,27 @@ type Inputs = {
 };
 
 const LoginForm: React.FC = () => {
+  const { data, error, loading, setCurrent } = useFetch({
+    method: undefined,
+    path: undefined,
+    formdata: undefined,
+  }) as Usefetch;
   const {
     register,
     handleSubmit,
     // watch,
+    reset,
     setError,
     formState: { errors },
   } = useForm<Inputs>();
 
   const onSubmit: SubmitHandler<Inputs> = (data) => {
+    setCurrent({
+      method: 'post',
+      path: '/login',
+      formdata: { email: data.email, password: data.password },
+    });
+    reset();
     return !errors.email && !errors.password && console.log(data);
   };
 

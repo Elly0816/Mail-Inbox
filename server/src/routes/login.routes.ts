@@ -28,8 +28,17 @@ loginRoute.post(`/${path}`, async (req: Request, res: Response) => {
       req.user = user;
       const access = signAccess(user);
       const refresh = signRefresh(user);
-      res.setHeader(Headers.access, access);
-      res.setHeader(Headers.refresh, refresh);
+      res.setHeader(
+        'Authorization',
+        JSON.stringify({ access: access, refresh: refresh })
+      );
+      console.log('\n');
+      console.log('\n');
+      console.log('res');
+      console.log('\n');
+      console.log(res);
+      console.log('\n');
+      console.log('\n');
       res.status(200).json({ message: 'Logged In successfully' });
     } else {
       res.status(400).json({ message: 'Incorrect username or password' });
