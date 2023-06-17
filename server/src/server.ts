@@ -8,6 +8,7 @@ import loginRoute from './routes/login.routes';
 import logoutRoute from './routes/logout.routes';
 import threadRoute from './routes/thread.routes';
 import messageRoute from './routes/message.routes';
+import cors from 'cors';
 
 config();
 
@@ -21,6 +22,7 @@ declare global {
 
 const app = express();
 
+app.use(cors({ origin: process.env.CLIENT as string }));
 app.use(urlencoded({ extended: true }));
 app.use(json());
 app.use(serializeUser);

@@ -1,29 +1,67 @@
-import React from "react";
-import { useForm, SubmitHandler } from "react-hook-form";
+import React, { useEffect, useRef } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
 
 type Inputs = {
-  example: string,
-  exampleRequired: string,
+  email: string;
+  password: string;
 };
 
-const LoginForm: React.FC<{}> = ()=> {
-  const { register, handleSubmit, watch, formState: { errors } } = useForm<Inputs>();
-  const onSubmit: SubmitHandler<Inputs> = data => console.log(data);
+const LoginForm: React.FC = () => {
+  const {
+    register,
+    handleSubmit,
+    // watch,
+    setError,
+    formState: { errors },
+  } = useForm<Inputs>();
 
-  console.log(watch("example")) // watch input value by passing the name of it
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    return !errors.email && !errors.password && console.log(data);
+  };
+
+  // console.log(watch('email')); // watch input value by passing the name of it
+
+  useEffect(() => {
+    setError('email', {
+      types: {
+        required: 'This is required',
+        minLength: 'This is the min Length',
+      },
+    });
+    setError('password', {
+      types: {
+        required: 'This is required',
+        minLength: 'This is the min Length',
+      },
+    });
+
+    errors.email && errors.password && console.log(errors.email);
+  }, [setError]);
+
+  const submitButton = useRef(null);
 
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
-    <form onSubmit={handleSubmit(onSubmit)}>
+    <form>
       {/* register your input into the hook by invoking the "register" function */}
-      <input defaultValue="test" {...register("example")} />
-      
+      <input placeholder="email" {...register('email', { required: true })} />
+
       {/* include validation with required or other standard HTML validation rules */}
-      <input {...register("exampleRequired", { required: true })} />
+      <input
+        {...register('password', { required: true })}
+        placeholder="password"
+      />
       {/* errors will return when field validation fails  */}
-      {errors.exampleRequired && <span>This field is required</span>}
-      
-      <input type="submit" />
+      {errors.email && <span>{errors.email.message || 'email error'}</span>}
+      {errors.password && (
+        <span>{errors.password.message || 'password error'}</span>
+      )}
+
+      <input
+        ref={submitButton}
+        type="submit"
+        onClick={handleSubmit(onSubmit)}
+      />
     </form>
   );
 };

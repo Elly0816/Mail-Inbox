@@ -9,7 +9,9 @@ import {
 import { userFromDb } from '../models/user.model';
 import jwt from 'jsonwebtoken';
 import _ from 'lodash';
+import { config } from 'dotenv';
 
+config();
 /*
 
 
@@ -19,6 +21,7 @@ const serializeUser = (
   res: Response,
   next: NextFunction
 ): void => {
+  res.setHeader('Access-Control-Allow-Credentials', 'true');
   const url = req.url.split('/');
   console.log(`The user is: ${req.user}`);
   if (
