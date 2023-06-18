@@ -34,12 +34,12 @@ loginRoute.post(`/${path}`, async (req: Request, res: Response) => {
       );
       console.log('\n');
       console.log('\n');
-      console.log('res');
+      console.log('user');
       console.log('\n');
-      console.log(res);
+      console.log(req.user);
       console.log('\n');
       console.log('\n');
-      res.status(200).json({ message: 'Logged In successfully' });
+      res.status(200).json({ message: 'Logged In successfully', user: user });
     } else {
       res.status(400).json({ message: 'Incorrect username or password' });
     }

@@ -10,13 +10,13 @@ if (BASE) {
   instance = axios.create({
     baseURL: BASE,
     timeout: 1000,
-    headers: {
-      'Access-Control-Allow-Origin': '*',
-      Authorization: JSON.stringify({
-        access: `Bearer ${localStorage.getItem('access')}`,
-        refresh: `Bearer ${localStorage.getItem('refresh')}`,
-      }),
-    },
+    // headers: {
+    //   'Access-Control-Allow-Origin': '*',
+    //   Authorization: JSON.stringify({
+    //     access: localStorage.getItem('access'),
+    //     refresh: localStorage.getItem('refresh'),
+    //   }),
+    // },
   });
   if (!instance) {
     console.log('There was an error axios create');
@@ -29,15 +29,16 @@ console.log('instance');
 console.log(instance);
 
 instance.interceptors.request.use((config) => {
-  console.log('request config');
-  console.log(config);
+  // console.log('request config');
+  // console.log(config);
   config.headers['Access-Control-Allow-Origin'] = '*';
   config.headers['withCredentials'] = 'true';
   config.headers['Authorization'] = JSON.stringify({
     access: localStorage.getItem('access'),
     refresh: localStorage.getItem('refresh'),
   });
-
+  console.log('req int');
+  console.log(config.headers);
   return config;
 });
 
@@ -45,15 +46,15 @@ instance.interceptors.response.use((config) => {
   console.log('Auth');
   console.log(config.headers);
   let auth = config.headers['authorization'];
-  auth = JSON.parse(auth) as { access: string; refresh: string };
-  const access = auth.access;
-  const refresh = auth.refresh;
+  auth = auth && (JSON.parse(auth) as { access: string; refresh: string });
+  const access = auth?.access;
+  const refresh = auth?.refresh;
   console.log('access and refresh');
   console.log(access, refresh);
-  console.log('response config');
-  console.log(config);
-  localStorage.setItem('access', access);
-  localStorage.setItem('refresh', refresh);
+  console.log('response config headers');
+  console.log(config.headers);
+  access && localStorage.setItem('access', access);
+  refresh && localStorage.setItem('refresh', refresh);
   return config;
 });
 

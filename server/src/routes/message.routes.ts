@@ -7,9 +7,14 @@ import {
   markMessageRead,
 } from '../controllers/message.controller';
 import { Message, message, messageFromDb } from '../models/message.model';
-import { getThread } from '../controllers/thread.controller';
-import { threadFromDb } from '../models/thread.model';
-import mongoose from 'mongoose';
+import {
+  addThreadToUser,
+  createThread,
+  getThread,
+} from '../controllers/thread.controller';
+import { Thread, threadFromDb } from '../models/thread.model';
+import mongoose, { ObjectId } from 'mongoose';
+import { getUser } from '../controllers/user.controller';
 
 const messageRoute = Router();
 
@@ -32,14 +37,15 @@ messageRoute.get(`${path}/:id`, async (req: Request, res: Response) => {
 messageRoute.post(path, async (req: Request, res: Response) => {
   const message = req.body.message as message;
   const { threadId, title, body, from, to } = message;
-  if (!(threadId && title && body && from && to)) {
+  const otherUser = await getUser('email', to);
+  if (!(title && body && from && to)) {
     res
       .status(400)
       .json({ message: 'Make sure you entered the correct fields' });
   }
   const thread = (await getThread('_id', threadId)) as threadFromDb;
+  const newMessage = (await createMessage(message)) as messageFromDb;
   if (thread) {
-    const newMessage = await createMessage(message);
     if (newMessage) {
       const messageAddedToThread = await addMessageToThread(
         newMessage._id,
@@ -56,6 +62,27 @@ messageRoute.post(path, async (req: Request, res: Response) => {
       res.status(500).json({ message: 'Message could not be created' });
     }
   } else {
+    const thread = await createThread(newMessage);
+    const added = await addMessageToThread(
+      new mongoose.Types.ObjectId(newMessage._id),
+      new mongoose.Types.ObjectId(thread?._id)
+    );
+    if (added) {
+      const toUser = await addThreadToUser(
+        new mongoose.Types.ObjectId(thread?._id),
+        new mongoose.Types.ObjectId(req.user?._id)
+      );
+      if (otherUser) {
+        const toOtherUser = await addThreadToUser(
+          new mongoose.Types.ObjectId(thread?._id),
+          new mongoose.Types.ObjectId(otherUser?._id)
+        );
+      }
+      if (toUser) {
+        const user = await getUser('_id', req.user?._id.toString() as string);
+        res.status(200).json({ message: user, user: user });
+      }
+    }
     res.status(404).json({ message: 'Could nont find the thread' });
   }
 });

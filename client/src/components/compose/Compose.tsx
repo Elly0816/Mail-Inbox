@@ -1,0 +1,68 @@
+import React, { useContext } from 'react';
+import { useForm, SubmitHandler } from 'react-hook-form';
+import queryServer from '../../utils/types/helper/helper';
+import { UseFetchProps } from '../../hooks/useFetch';
+import { authContext } from '../../App';
+
+export interface composeInterface {
+  method: UseFetchProps['method'];
+  // message:{from:string, to:string, message:string, threadId?:string|undefined}
+}
+
+interface Inputs {
+  to: string;
+  title: string;
+  body: string;
+}
+
+const Compose: React.FC<composeInterface> = ({ method }) => {
+  const {
+    register,
+    handleSubmit,
+    watch,
+    formState: { errors },
+  } = useForm<Inputs>();
+
+  console.log(watch('to')); // watch input value by passing the name of it
+  const { setUser, user } = useContext(authContext);
+  const onSubmit: SubmitHandler<Inputs> = (data) => {
+    const config = {
+      formdata: {
+        message: {
+          from: user?.email,
+          to: data.to,
+          title: data.title,
+          body: data.body,
+        },
+      },
+      method: method as string,
+      url: '/message',
+    };
+    console.log(config);
+
+    queryServer(config)
+      .then((res) => {
+        setUser && setUser(res.data.user);
+        console.log(res);
+      })
+      .catch((e) => console.log(e));
+  };
+
+  return (
+    /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
+    <form onSubmit={handleSubmit(onSubmit)}>
+      {/* register your input into the hook by invoking the "register" function */}
+      <input placeholder="title" {...register('to')} />
+      <input placeholder="email" {...register('to', { required: true })} />
+
+      {/* include validation with required or other standard HTML validation rules */}
+      <input placeholder="body" {...register('body', { required: true })} />
+      {/* errors will return when field validation fails  */}
+      {errors.to && <span>Enter the receivers Email! </span>}
+
+      <input type="submit" />
+    </form>
+  );
+};
+
+export default Compose;

@@ -22,7 +22,7 @@ export interface threadFromDb {
 }
 
 export interface thread {
-  messages: [messageFromDb['_id']];
+  messages: [messageFromDb['_id'] | undefined];
 }
 
 const threadSchema = new Schema(thread);

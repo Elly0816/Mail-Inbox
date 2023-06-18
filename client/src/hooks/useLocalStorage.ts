@@ -1,14 +1,9 @@
 import { useState, useEffect } from 'react';
 
-export interface localStorageType {
-  //   item: string | undefined;
-  //   setItem: React.Dispatch<React.SetStateAction<string>>;
-  items: Array<
-    | string
-    | undefined
-    | React.Dispatch<React.SetStateAction<useLocalStorageProps>>
-  >;
-}
+export type localStorageType<T> = [
+  T | undefined,
+  React.Dispatch<React.SetStateAction<T | undefined>>
+];
 
 export interface useLocalStorageProps {
   name: string;
@@ -18,14 +13,15 @@ export interface useLocalStorageProps {
 const useLocalStorage = ({
   name,
   value,
-}: useLocalStorageProps): localStorageType['items'] => {
+}: useLocalStorageProps): localStorageType<string> => {
   const [item, setItem] = useState<string>();
 
-  const [currName, setCurrName] = useState<useLocalStorageProps>({
-    name,
-    value,
-  });
+  const [currName, setCurrName] =
+    useState<useLocalStorageProps['value']>(value);
   useEffect(() => {
+    if (currName) {
+      localStorage.setItem(name, currName);
+    }
     if (!value) {
       const newItem = localStorage.getItem(name);
       if (newItem) {
@@ -34,7 +30,7 @@ const useLocalStorage = ({
         setItem(undefined);
       }
     } else {
-      localStorage.setItem(name, value);
+      localStorage.setItem(name, currName as string);
       const newItem = localStorage.getItem(name);
       setItem(newItem as string);
     }

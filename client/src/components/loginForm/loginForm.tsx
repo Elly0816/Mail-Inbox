@@ -1,18 +1,27 @@
-import React, { useEffect, useRef } from 'react';
+import React, { useContext, useEffect, useRef } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import useFetch, { Usefetch } from '../../hooks/useFetch';
+import { authContext, authContextType } from '../../App';
+import queryServer from '../../utils/types/helper/helper';
+import { userFromDb } from '../../models/user.models';
 
 type Inputs = {
   email: string;
   password: string;
 };
 
-const LoginForm: React.FC = () => {
-  const { data, error, loading, setCurrent } = useFetch({
-    method: undefined,
-    path: undefined,
-    formdata: undefined,
-  }) as Usefetch;
+export interface loginFormInput {
+  loading: boolean;
+  setLoading: React.Dispatch<React.SetStateAction<boolean>>;
+}
+
+const LoginForm: React.FC<loginFormInput> = ({ setLoading }) => {
+  const { setAuth, setUser } = useContext(authContext) as authContextType;
+  // const { data, error, loading, setGo, setCurrent } = useFetch({
+  //   method: undefined,
+  //   path: undefined,
+  //   formdata: undefined,
+  //   next: '/',
+  // }) as Usefetch;
   const {
     register,
     handleSubmit,
@@ -22,15 +31,39 @@ const LoginForm: React.FC = () => {
     formState: { errors },
   } = useForm<Inputs>();
 
+  // const navigate = useNavigate();
+
   const onSubmit: SubmitHandler<Inputs> = (data) => {
-    setCurrent({
-      method: 'post',
-      path: '/login',
+    setLoading(true);
+
+    queryServer({
       formdata: { email: data.email, password: data.password },
-    });
+      method: 'post',
+      url: '/login',
+    })
+      .then((res) => {
+        const { user } = res.data;
+        console.log(res);
+        if (user) {
+          setUser && setUser(user as userFromDb);
+          setAuth && setAuth(true);
+        }
+      })
+      .catch((e) => {
+        setAuth && setAuth(false);
+        console.log(e);
+      });
+    // navigate('');
     reset();
+    setLoading(false);
     return !errors.email && !errors.password && console.log(data);
   };
+
+  // useEffect(() => {
+  //   if (auth) {
+  //     navigate('');
+  //   }
+  // }, [auth, navigate]);
 
   // console.log(watch('email')); // watch input value by passing the name of it
 
