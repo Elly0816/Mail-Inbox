@@ -25,7 +25,7 @@ const serializeUser = async (
   // //console.log('\n');
   // //console.log('request');
   // //console.log('\n');
-  // //console.log(req.headers);
+  console.log(req.url);
   // //console.log('\n');
   // //console.log('\n');
   res.setHeader(Headers.cors, '*');

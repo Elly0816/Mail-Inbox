@@ -1,12 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import './homepage.css';
-import React, { Fragment, useContext, useEffect, useMemo } from 'react';
+import React, {
+  Fragment,
+  ReactElement,
+  useContext,
+  useEffect,
+  useMemo,
+  useState,
+} from 'react';
 import useFetch from '../../hooks/useFetch';
 import Loading from '../../components/loading/Loading';
 import { authContext } from '../../App';
-import queryServer from '../../utils/types/helper/helper';
+import { queryServer } from '../../utils/types/helper/helper';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import InboxPage from '../inboxpage/inboxPage';
+import { getNameFromUser } from '../../utils/types/helper/helper';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface homePageProp {}
 
@@ -20,14 +28,15 @@ const HomePage: React.FC<homePageProp> = () => {
     method: 'get',
     // next: '',
   });
-  const [, setAccess] = useLocalStorage({ name: 'access' });
-  const [, setRefresh] = useLocalStorage({ name: 'refresh' });
+  const [access, setAccess] = useLocalStorage({ name: 'access' });
+  const [refresh, setRefresh] = useLocalStorage({ name: 'refresh' });
 
   const child = useMemo(() => {
-    return (auth && user) || data ? (
+    return (access && refresh) || data?.user ? (
       <div>
+        <h3>{`Hi ${getNameFromUser(user?.email as string)}`}</h3>
         {
-          (data as object) && <InboxPage />
+          data && <InboxPage />
           // Object.entries(data).map((value, index) => (
           //   <Fragment>
           //     <h3 key={index}>{`${
@@ -71,18 +80,7 @@ const HomePage: React.FC<homePageProp> = () => {
         </div>
       )
     );
-  }, [
-    auth,
-    user,
-    data,
-    loading,
-    error,
-    setAuth,
-    setUser,
-    setAccess,
-    setRefresh,
-    navigate,
-  ]);
+  }, [auth, user, loading, data, error]);
 
   useEffect(() => {
     error &&
@@ -93,6 +91,18 @@ const HomePage: React.FC<homePageProp> = () => {
       error.message.toLowerCase().includes('unauthorized') &&
       navigate('/login');
   }, [error, navigate]);
+
+  useEffect(() => {
+    if (data?.user) {
+      setUser && setUser(data?.user);
+      setAuth && setAuth(true);
+    }
+    // else {
+    //   // setUser && setUser(undefined);
+    //   // setAuth && setAuth(false);
+    //   // navigate('/login');
+    // }
+  }, [data]);
 
   return (
     <Fragment>

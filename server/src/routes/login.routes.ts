@@ -20,31 +20,32 @@ loginRoute.post(`/${path}`, async (req: Request, res: Response) => {
   const { email, password } = req.body as user;
   if (!email || !password) {
     res.status(400).json({ message: 'Enter both email and password' });
-  }
-  const user = (await getUser('email', email)) as userFromDb;
-  if (user) {
-    const isSame = await compare(password, user.password);
-    if (isSame) {
-      req.user = user;
-      const access = signAccess(user);
-      const refresh = signRefresh(user);
-      res.setHeader(
-        'Authorization',
-        JSON.stringify({ access: access, refresh: refresh })
-      );
-      console.log('\n');
-      console.log('\n');
-      console.log('user');
-      console.log('\n');
-      console.log(req.user);
-      console.log('\n');
-      console.log('\n');
-      res.status(200).json({ message: 'Logged In successfully', user: user });
-    } else {
-      res.status(400).json({ message: 'Incorrect username or password' });
-    }
   } else {
-    res.status(400).json({ message: 'User not Found!' });
+    const user = (await getUser('email', email)) as userFromDb;
+    if (user) {
+      const isSame = await compare(password, user.password);
+      if (isSame) {
+        req.user = user;
+        const access = signAccess(user);
+        const refresh = signRefresh(user);
+        res.setHeader(
+          'Authorization',
+          JSON.stringify({ access: access, refresh: refresh })
+        );
+        console.log('\n');
+        console.log('\n');
+        console.log('user');
+        console.log('\n');
+        console.log(req.user);
+        console.log('\n');
+        console.log('\n');
+        res.status(200).json({ message: 'Logged In successfully', user: user });
+      } else {
+        res.status(400).json({ message: 'Incorrect username or password' });
+      }
+    } else {
+      res.status(400).json({ message: 'User not Found!' });
+    }
   }
 });
 

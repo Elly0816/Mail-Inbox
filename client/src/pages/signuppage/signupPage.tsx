@@ -1,14 +1,14 @@
 import { useContext, Fragment, useEffect, useState, useMemo } from 'react';
-import LoginForm from '../../components/loginForm/loginForm';
+import SignUpForm from '../../components/signupForm/signupForm';
 import React from 'react';
-import './LoginPage.css';
+import './signupPage.css';
 import { authContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface loginPageProps {}
 
-const LoginPage: React.FC<loginPageProps> = () => {
+const SignUpPage: React.FC<loginPageProps> = () => {
   const navigate = useNavigate();
   const { auth, user } = useContext(authContext);
   useEffect(
@@ -17,7 +17,7 @@ const LoginPage: React.FC<loginPageProps> = () => {
         navigate('/');
       }
     }
-    //  [auth, navigate, user]
+    //    [auth, navigate, user]
   );
   const [loading, setLoading] = useState<boolean>(false);
 
@@ -26,13 +26,13 @@ const LoginPage: React.FC<loginPageProps> = () => {
       <div>Loading...</div>
     ) : (
       <Fragment>
-        <LoginForm loading={loading} setLoading={setLoading} />
+        <SignUpForm loading={loading} setLoading={setLoading} />
         <button
           onClick={() => {
-            navigate('/signup');
+            navigate('/login');
           }}
         >
-          Click me to Sign Up
+          Click me to Login
         </button>
       </Fragment>
     );
@@ -40,4 +40,4 @@ const LoginPage: React.FC<loginPageProps> = () => {
   return <Fragment>{child}</Fragment>;
 };
 
-export default LoginPage;
+export default SignUpPage;

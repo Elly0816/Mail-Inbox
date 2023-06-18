@@ -1,6 +1,6 @@
-import React, { useContext } from 'react';
+import React, { Fragment, useContext } from 'react';
 import { useForm, SubmitHandler } from 'react-hook-form';
-import queryServer from '../../utils/types/helper/helper';
+import { queryServer } from '../../utils/types/helper/helper';
 import { UseFetchProps } from '../../hooks/useFetch';
 import { authContext } from '../../App';
 
@@ -20,6 +20,7 @@ const Compose: React.FC<composeInterface> = ({ method }) => {
     register,
     handleSubmit,
     watch,
+    reset,
     formState: { errors },
   } = useForm<Inputs>();
 
@@ -46,22 +47,26 @@ const Compose: React.FC<composeInterface> = ({ method }) => {
         console.log(res);
       })
       .catch((e) => console.log(e));
+    reset();
   };
 
   return (
     /* "handleSubmit" will validate your inputs before invoking "onSubmit" */
-    <form onSubmit={handleSubmit(onSubmit)}>
-      {/* register your input into the hook by invoking the "register" function */}
-      <input placeholder="title" {...register('to')} />
-      <input placeholder="email" {...register('to', { required: true })} />
+    <Fragment>
+      <h1>Send a message</h1>
+      <form onSubmit={handleSubmit(onSubmit)}>
+        {/* register your input into the hook by invoking the "register" function */}
+        <input placeholder="title" {...register('title')} />
+        <input placeholder="email" {...register('to', { required: true })} />
 
-      {/* include validation with required or other standard HTML validation rules */}
-      <input placeholder="body" {...register('body', { required: true })} />
-      {/* errors will return when field validation fails  */}
-      {errors.to && <span>Enter the receivers Email! </span>}
+        {/* include validation with required or other standard HTML validation rules */}
+        <input placeholder="body" {...register('body', { required: true })} />
+        {/* errors will return when field validation fails  */}
+        {errors.to && <span>Enter the receivers Email! </span>}
 
-      <input type="submit" />
-    </form>
+        <input type="submit" />
+      </form>
+    </Fragment>
   );
 };
 

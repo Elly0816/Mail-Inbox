@@ -8,7 +8,7 @@ import {
 } from '../controllers/thread.controller';
 import { message } from '../models/message.model';
 import { createMessage } from '../controllers/message.controller';
-import mongoose from 'mongoose';
+import mongoose, { isValidObjectId } from 'mongoose';
 import { userFromDb } from '../models/user.model';
 
 const threadRoute = Router();
@@ -17,14 +17,19 @@ const path = `${protectedEndpoints.thread}`;
 
 threadRoute.get(`/${path}/:id`, async (req: Request, res: Response) => {
   const { id } = req.params;
-  if (!id) {
-    res.status(400).json({ message: 'Bad Request' });
+  console.log(id);
+  if (!isValidObjectId(id)) {
+    res.status(400).json({ message: 'Invalid Object Id' });
   } else {
-    const thread = await getThread('_id', id);
-    if (thread) {
-      res.status(200).json({ message: thread });
+    if (!id) {
+      res.status(400).json({ message: 'Bad Request' });
     } else {
-      res.status(404).json({ message: 'Thread not found' });
+      const thread = await getThread('_id', id);
+      if (thread) {
+        res.status(200).json({ message: thread, user: req.user });
+      } else {
+        res.status(404).json({ message: 'Thread not found' });
+      }
     }
   }
 });
@@ -44,7 +49,7 @@ threadRoute.post(`/${path}`, async (req: Request, res: Response) => {
     userId?._id as userFromDb['_id']
   );
   if (threadAddedToUser) {
-    res.status(201).json({ message: 'Thread added to User' });
+    res.status(201).json({ message: 'Thread added to User', user: req.user });
   }
   res.status(500).json({ message: 'There was an error' });
 });

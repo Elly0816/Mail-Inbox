@@ -29,6 +29,8 @@ UseFetchProps): Usefetch => {
   const [error, setError] = useState<Error | undefined>(undefined);
   const [data, setData] = useState();
 
+  console.log(path, method, formdata);
+
   if (method && method != 'get' && !formdata) {
     setError(new Error('There was no data given'));
   }
@@ -38,18 +40,20 @@ UseFetchProps): Usefetch => {
     const controller = new AbortController();
     const config = {
       method: method,
-      url: path,
+      url: path?.toString(),
       signal: controller.signal,
       data: formdata,
     };
 
+    console.log(config);
+
     instance(config)
       .then(async (res: AxiosResponse) => {
         console.log(res);
-        if (res.status.toString()[0] !== '2') {
+        // if (res.status.toString()[0] !== '2') {
+        if (!res.data.error) {
           setError(new Error(res.statusText));
           setData(res.data);
-          setLoading(false);
         } else {
           const resData = res.data;
           setData(resData);

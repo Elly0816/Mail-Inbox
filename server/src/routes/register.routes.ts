@@ -47,12 +47,15 @@ registerRoute.post(`/${path}`, async (req: Request, res: Response) => {
         const access = signAccess(user);
         const refresh = signRefresh(user);
         if (access && refresh) {
-          res.setHeader(Headers.access, access);
-          res.setHeader(Headers.refresh, refresh);
+          res.setHeader(
+            'Authorization',
+            JSON.stringify({ access: access, refresh: refresh })
+          );
           req.user = user;
-          res
-            .status(201)
-            .json({ message: 'You have been logged in successfully' });
+          res.status(201).json({
+            message: 'You have been logged in successfully',
+            user: user,
+          });
         } else {
           res
             .status(500)

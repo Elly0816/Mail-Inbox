@@ -14,7 +14,9 @@ const user = {
     unique: true,
   },
   password: String,
-  threads: [{ type: ObjectId }],
+  threads: {
+    type: [String],
+  },
 };
 
 export interface userFromDb extends user {

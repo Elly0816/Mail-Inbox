@@ -20,4 +20,9 @@ const queryServer = ({
   return instance(config);
 };
 
-export default queryServer;
+const getNameFromUser = (input: string): string => {
+  console.log(input);
+  return input ? input.split('@')[0] : '';
+};
+
+export { queryServer, getNameFromUser };

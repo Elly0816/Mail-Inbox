@@ -28,7 +28,11 @@ const InboxPage: React.FC = () => {
 
   const child = useMemo(() => {
     return user && user.threads.length > 0 ? (
-      user?.threads.map((thread) => <Thread id={thread._id} />)
+      user['threads'].map((thread, index) => {
+        console.log(thread);
+        console.log('This is a single thread');
+        return <Thread key={index} id={thread} />;
+      })
     ) : (
       <div>
         <h3>There are no threads</h3>

@@ -12,9 +12,18 @@ const getThread = async (
       switch (field) {
         case '_id':
           if (typeof value === 'string') {
-            const id = new mongoose.Types.ObjectId(value);
-            const thread = (await Thread.findById(id).lean()) as threadFromDb;
-            return thread;
+            // console.log(JSON.stringify(value));
+
+            try {
+              // const id = new mongoose.Types.ObjectId(value);
+              const thread = (await Thread.findById(
+                value
+              ).lean()) as threadFromDb;
+              return thread;
+            } catch (e) {
+              console.log(e);
+              console.log(...value);
+            }
           } else {
             const thread = (await Thread.findById(
               value
@@ -58,7 +67,7 @@ const addThreadToUser = async (
   }
   const user = (await User.findOneAndUpdate(
     { _id: userId },
-    { $push: { threads: threadId } },
+    { $push: { threads: threadId.toString() } },
     { new: true }
   ).lean()) as userFromDb;
   return user ? true : false;
@@ -82,7 +91,7 @@ const deleteThreadFromUser = async (
 const createThread = async (
   message: messageFromDb
 ): Promise<threadFromDb | undefined> => {
-  const newThread = await Thread.create({ messages: [message._id] });
+  const newThread = await Thread.create({ messages: [message._id.toString()] });
   let thread = (await Thread.findById(
     newThread._id
   ).lean()) as unknown as threadFromDb;

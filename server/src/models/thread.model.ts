@@ -11,7 +11,7 @@ const thread = {
     type: Date,
     default: Date.now,
   },
-  messages: [mongoose.Types.ObjectId],
+  messages: { type: [String] },
 };
 
 export interface threadFromDb {

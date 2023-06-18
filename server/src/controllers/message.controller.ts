@@ -83,7 +83,7 @@ const addMessageToThread = async (
 ): Promise<boolean> => {
   const thread = (await Thread.findByIdAndUpdate(
     threadId,
-    { $push: { messages: messageId } },
+    { $push: { messages: messageId.toString() } },
     { new: true }
   ).lean()) as threadFromDb;
   return thread ? true : false;
@@ -93,8 +93,12 @@ const deleteMessageFromThread = async (
   threadId: threadFromDb['_id'],
   messageId: messageFromDb['_id']
 ): Promise<boolean> => {
-  const thread = await Thread.findByIdAndUpdate(threadId);
-  const message = await Message.findByIdAndDelete(messageId);
+  const thread = await Thread.findByIdAndUpdate(
+    threadId,
+    { $pull: { messages: messageId.toString() } },
+    { new: true }
+  ).lean();
+  const message = await Message.findByIdAndDelete(messageId).lean();
   if (thread && message) {
     return true;
   }
