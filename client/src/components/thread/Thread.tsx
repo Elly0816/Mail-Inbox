@@ -7,6 +7,7 @@ import Error from '../error/Error';
 import { useContext } from 'react';
 import { authContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
+import { getNameFromUser } from '../../utils/types/helper/helper';
 
 export interface threadProp {
   id: string;
@@ -20,24 +21,30 @@ const Thread: React.FC<threadProp> = (id) => {
     method: 'get',
   });
 
-  const child = useMemo(() => {
-    console.log(data);
-    return loading ? (
-      <Loading />
-    ) : data?.message ? (
-      <div>
-        <div
-          onClick={() => {
-            navigate(`/message/:${data?.message._id}`);
-          }}
-        >
-          {(data?.message?._id as string) || <Loading />}
-        </div>
+  const child = loading ? (
+    <Loading />
+  ) : data?.message ? (
+    <div>
+      <div
+        onClick={() => {
+          navigate(`/message/:${data?.message._id}`);
+        }}
+      >
+        {(
+          <h3>Click to open thread with {getNameFromUser(data?.otherUser)}</h3>
+        ) || <Loading />}
+        {data?.unread > 0 ? (
+          <h4>
+            You have {data.unread} unread messages from{' '}
+            {data.messages.messages.length}
+          </h4>
+        ) : // <h4>You have no unread messages</h4>
+        null}
       </div>
-    ) : error && !loading && !data ? (
-      <Error message={error.message} />
-    ) : null;
-  }, [data, error, loading]);
+    </div>
+  ) : error && !loading && !data ? (
+    <Error message={error.message} />
+  ) : null;
 
   return <Fragment>{child}</Fragment>;
 };

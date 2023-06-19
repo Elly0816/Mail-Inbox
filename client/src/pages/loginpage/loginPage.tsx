@@ -4,6 +4,7 @@ import React from 'react';
 import './LoginPage.css';
 import { authContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../../components/loading/Loading';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface loginPageProps {}
@@ -21,23 +22,20 @@ const LoginPage: React.FC<loginPageProps> = () => {
   );
   const [loading, setLoading] = useState<boolean>(false);
 
-  const child = useMemo(() => {
-    return loading ? (
-      <div>Loading...</div>
-    ) : (
-      <Fragment>
-        <LoginForm loading={loading} setLoading={setLoading} />
-        <button
-          onClick={() => {
-            navigate('/signup');
-          }}
-        >
-          Click me to Sign Up
-        </button>
-      </Fragment>
-    );
-  }, [loading]);
-  return <Fragment>{child}</Fragment>;
+  return !loading ? (
+    <Fragment>
+      <LoginForm loading={loading} setLoading={setLoading} />
+      <button
+        onClick={() => {
+          navigate('/signup');
+        }}
+      >
+        Click me to Sign Up
+      </button>
+    </Fragment>
+  ) : (
+    <Loading />
+  );
 };
 
 export default LoginPage;

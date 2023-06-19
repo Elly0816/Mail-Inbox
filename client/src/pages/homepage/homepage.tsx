@@ -15,6 +15,7 @@ import { queryServer } from '../../utils/types/helper/helper';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import InboxPage from '../inboxpage/inboxPage';
 import { getNameFromUser } from '../../utils/types/helper/helper';
+import Error from '../../components/error/Error';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface homePageProp {}
 
@@ -31,21 +32,12 @@ const HomePage: React.FC<homePageProp> = () => {
   const [access, setAccess] = useLocalStorage({ name: 'access' });
   const [refresh, setRefresh] = useLocalStorage({ name: 'refresh' });
 
-  const child = useMemo(() => {
-    return (access && refresh) || data?.user ? (
+  const child =
+    // (access && refresh) ||
+    data?.user ? (
       <div>
         <h3>{`Hi ${getNameFromUser(user?.email as string)}`}</h3>
-        {
-          data && <InboxPage />
-          // Object.entries(data).map((value, index) => (
-          //   <Fragment>
-          //     <h3 key={index}>{`${
-          //       (value[0] as string, value[1] as string)
-          //     }`}</h3>
-          //     <span>{user?.email.split('@')[0]}</span>
-          //   </Fragment>
-          // ))
-        }
+        {data && <InboxPage />}
         <button
           onClick={() => {
             queryServer({
@@ -74,14 +66,14 @@ const HomePage: React.FC<homePageProp> = () => {
     ) : loading ? (
       <Loading />
     ) : (
-      error && (
-        <div>
-          <h2>{error?.message}</h2>
-        </div>
-      )
+      // error && (
+      <div>
+        <h2>
+          <Error message={error?.message as string} />
+        </h2>
+      </div>
+      // )
     );
-  }, [auth, user, loading, data, error]);
-
   useEffect(() => {
     error &&
       error.message.toLowerCase().includes('unauthorized') &&
@@ -102,7 +94,7 @@ const HomePage: React.FC<homePageProp> = () => {
     //   // setAuth && setAuth(false);
     //   // navigate('/login');
     // }
-  }, [data]);
+  }, [data?.user]);
 
   return (
     <Fragment>

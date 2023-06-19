@@ -6,7 +6,7 @@ import {
 } from 'react-router-dom';
 import HomePage from './pages/homepage/homepage';
 import LoginPage from './pages/loginpage/loginPage';
-import { useMemo, useState } from 'react';
+import { useState } from 'react';
 import { createContext } from 'react';
 import { userFromDb } from './models/user.models';
 import SignUpPage from './pages/signuppage/signupPage';
@@ -43,14 +43,6 @@ function App() {
   const [user, setUser] = useState<userFromDb | undefined>();
 
   const [auth, setAuth] = useState<boolean>(false);
-
-  // const user = useMemo(() => {
-  //   return User ? User : undefined;
-  // }, [Auth]);
-
-  // const auth = useMemo(() => {
-  //   return Auth ? Auth : false;
-  // }, [Auth]);
 
   return (
     <authContext.Provider value={{ auth, user, setUser, setAuth }}>

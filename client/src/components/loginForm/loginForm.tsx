@@ -16,12 +16,6 @@ export interface loginFormInput {
 
 const LoginForm: React.FC<loginFormInput> = ({ setLoading }) => {
   const { setAuth, setUser } = useContext(authContext) as authContextType;
-  // const { data, error, loading, setGo, setCurrent } = useFetch({
-  //   method: undefined,
-  //   path: undefined,
-  //   formdata: undefined,
-  //   next: '/',
-  // }) as Usefetch;
   const {
     register,
     handleSubmit,

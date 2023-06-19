@@ -2,6 +2,7 @@ import mongoose, { ObjectId } from 'mongoose';
 import { threadFromDb, Thread, thread } from '../models/thread.model';
 import { User, userFromDb } from '../models/user.model';
 import { messageFromDb } from '../models/message.model';
+import { getMessage } from './message.controller';
 
 const getThread = async (
   field: keyof threadFromDb | undefined | null,
@@ -65,12 +66,24 @@ const addThreadToUser = async (
   if (!userId) {
     return false;
   }
-  const user = (await User.findOneAndUpdate(
-    { _id: userId },
-    { $push: { threads: threadId.toString() } },
-    { new: true }
-  ).lean()) as userFromDb;
-  return user ? true : false;
+
+  const user = await User.findById(userId).lean();
+  console.log('This is the thread\n\n\n');
+  console.log(user?.threads);
+  console.log(threadId);
+  console.log('This is the thread\n\n\n');
+
+  console.log(user?.threads.includes(threadId.toString()));
+  if (user?.threads.includes(threadId.toString())) {
+    return true;
+  } else {
+    const user = (await User.findOneAndUpdate(
+      { _id: userId },
+      { $push: { threads: threadId.toString() } },
+      { new: true }
+    ).lean()) as userFromDb;
+    return user ? true : false;
+  }
 };
 
 // Delete thread from user
@@ -97,10 +110,25 @@ const createThread = async (
   ).lean()) as unknown as threadFromDb;
   return thread;
 };
+
+// Get the other user on the thread
+const getUserFromThread = async (
+  threadId: threadFromDb['_id'],
+  userEmail: userFromDb['email']
+): Promise<string> => {
+  const thread = await Thread.findById(threadId).lean();
+  const firstMessageId = thread?.messages[0];
+  const message = (await getMessage(
+    '_id',
+    firstMessageId as string
+  )) as messageFromDb;
+  return userEmail == message.from ? message.to : message.from;
+};
 export {
   createThread,
   getThread,
   threadInUser,
   addThreadToUser,
   deleteThreadFromUser,
+  getUserFromThread,
 };

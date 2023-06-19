@@ -1,6 +1,7 @@
 import mongoose, { ObjectId } from 'mongoose';
 import { messageFromDb, Message, message } from '../models/message.model';
 import { Thread, threadFromDb } from '../models/thread.model';
+import { userFromDb } from '../models/user.model';
 
 const getMessage = async (
   field: keyof messageFromDb | null | undefined,
@@ -12,11 +13,13 @@ const getMessage = async (
         if (typeof value === 'string') {
           const id = new mongoose.Types.ObjectId(value);
           const message = (await Message.findById(id).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         } else {
           const message = (await Message.findById(
             value
           ).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         }
       case 'from':
@@ -25,11 +28,13 @@ const getMessage = async (
           const message = (await Message.findOne({
             from: id,
           }).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         } else {
           const message = (await Message.findOne({
             from: value,
           }).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         }
       case 'to':
@@ -38,11 +43,13 @@ const getMessage = async (
           const message = (await Message.findOne({
             to: id,
           }).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         } else {
           const message = (await Message.findOne({
             to: value,
           }).lean()) as messageFromDb;
+          await markMessageRead(message._id);
           return message;
         }
       case 'read':
@@ -53,6 +60,7 @@ const getMessage = async (
     }
   } else {
     const message = (await Message.find().lean()) as messageFromDb;
+    await markMessageRead(message._id);
     return message;
   }
 };
@@ -81,12 +89,40 @@ const addMessageToThread = async (
   messageId: messageFromDb['_id'],
   threadId: threadFromDb['_id']
 ): Promise<boolean> => {
-  const thread = (await Thread.findByIdAndUpdate(
-    threadId,
-    { $push: { messages: messageId.toString() } },
-    { new: true }
-  ).lean()) as threadFromDb;
-  return thread ? true : false;
+  let thread = await Thread.bulkWrite([
+    {
+      updateOne: {
+        filter: { _id: threadId },
+        update: { $push: { messages: messageId.toString() } },
+      },
+    },
+
+    {
+      updateOne: {
+        filter: { _id: threadId },
+        update: { $set: { lastModified: new Date() } },
+      },
+    },
+  ]);
+  // console.log('Thread in add message function');
+  // console.log(thread);
+  // console.log(thread.isOk());
+  let newThread;
+  if (thread.isOk()) {
+    newThread = (await Thread.findOne(threadId).lean()) as threadFromDb;
+  }
+  console.log(JSON.stringify(newThread));
+  console.log(messageId);
+  console.log(newThread?.messages.includes(messageId) ? true : false);
+  return newThread?.messages.includes(messageId.toString() as any)
+    ? true
+    : false;
+  // const thread = (await Thread.findByIdAndUpdate(
+  //   threadId,
+  //   { $push: { messages: messageId.toString(),} $set: {lastModified: Date.now } },
+  //   { new: true }
+  // ).lean()) as threadFromDb;
+  // return thread ? true : false;
 };
 
 const deleteMessageFromThread = async (
@@ -120,7 +156,33 @@ const markMessageRead = async (
   }
 };
 
+const userUnreadCount = async (
+  messagesInThread: threadFromDb['messages'],
+  userEmail: userFromDb['email']
+): Promise<number> => {
+  /*
+   * get the messages
+   * see if they're read and if the sender is the same as the email
+   * if so
+   *
+   *
+   *
+   *
+   */
+  const messages = await Promise.all(
+    messagesInThread.map(
+      async (message) =>
+        (await Message.findById(message).lean()) as messageFromDb
+    )
+  );
+  const unreadCount = messages
+    .filter((message) => message.to === userEmail)
+    .filter((message) => message.read === false).length;
+  return unreadCount;
+};
+
 export {
+  userUnreadCount,
   deleteMessageFromThread,
   getMessage,
   messageInThread,

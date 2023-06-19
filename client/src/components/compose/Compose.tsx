@@ -6,6 +6,8 @@ import { authContext } from '../../App';
 
 export interface composeInterface {
   method: UseFetchProps['method'];
+  threadId?: string;
+  to?: string;
   // message:{from:string, to:string, message:string, threadId?:string|undefined}
 }
 
@@ -15,7 +17,7 @@ interface Inputs {
   body: string;
 }
 
-const Compose: React.FC<composeInterface> = ({ method }) => {
+const Compose: React.FC<composeInterface> = ({ method, threadId, to }) => {
   const {
     register,
     handleSubmit,
@@ -31,9 +33,10 @@ const Compose: React.FC<composeInterface> = ({ method }) => {
       formdata: {
         message: {
           from: user?.email,
-          to: data.to,
+          to: to ? to : data.to,
           title: data.title,
           body: data.body,
+          threadId: threadId,
         },
       },
       method: method as string,
@@ -44,7 +47,7 @@ const Compose: React.FC<composeInterface> = ({ method }) => {
     queryServer(config)
       .then((res) => {
         setUser && setUser(res.data.user);
-        console.log(res);
+        console.log('xxx' + res);
       })
       .catch((e) => console.log(e));
     reset();
@@ -57,7 +60,9 @@ const Compose: React.FC<composeInterface> = ({ method }) => {
       <form onSubmit={handleSubmit(onSubmit)}>
         {/* register your input into the hook by invoking the "register" function */}
         <input placeholder="title" {...register('title')} />
-        <input placeholder="email" {...register('to', { required: true })} />
+        {!to && (
+          <input placeholder="email" {...register('to', { required: true })} />
+        )}
 
         {/* include validation with required or other standard HTML validation rules */}
         <input placeholder="body" {...register('body', { required: true })} />

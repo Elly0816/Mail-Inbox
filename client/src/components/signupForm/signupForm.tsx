@@ -65,12 +65,6 @@ const SignUpForm: React.FC<loginFormInput> = ({ setLoading }) => {
     return !errors.email && !errors.password && console.log(data);
   };
 
-  // useEffect(() => {
-  //   if (auth) {
-  //     navigate('');
-  //   }
-  // }, [auth, navigate]);
-
   // console.log(watch('email')); // watch input value by passing the name of it
 
   useEffect(() => {

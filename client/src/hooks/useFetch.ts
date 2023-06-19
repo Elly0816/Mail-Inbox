@@ -51,14 +51,14 @@ UseFetchProps): Usefetch => {
       .then(async (res: AxiosResponse) => {
         console.log(res);
         // if (res.status.toString()[0] !== '2') {
-        if (!res.data.error) {
-          setError(new Error(res.statusText));
-          setData(res.data);
-        } else {
-          const resData = res.data;
-          setData(resData);
-          setError(undefined);
-        }
+        // if (!res.data.error) {
+        //   setError(new Error(res.statusText));
+        //   setData(res.data);
+        // } else {
+        //   const resData = res.data;
+        setData(res.data);
+        setError(undefined);
+        // }
       })
       .catch((err: AxiosError) => {
         console.log('error');

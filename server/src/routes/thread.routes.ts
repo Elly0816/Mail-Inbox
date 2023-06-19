@@ -5,9 +5,13 @@ import {
   addThreadToUser,
   deleteThreadFromUser,
   getThread,
+  getUserFromThread,
 } from '../controllers/thread.controller';
 import { message } from '../models/message.model';
-import { createMessage } from '../controllers/message.controller';
+import {
+  createMessage,
+  userUnreadCount,
+} from '../controllers/message.controller';
 import mongoose, { isValidObjectId } from 'mongoose';
 import { userFromDb } from '../models/user.model';
 
@@ -24,9 +28,24 @@ threadRoute.get(`/${path}/:id`, async (req: Request, res: Response) => {
     if (!id) {
       res.status(400).json({ message: 'Bad Request' });
     } else {
-      const thread = await getThread('_id', id);
+      const thread = (await getThread('_id', id)) as threadFromDb;
       if (thread) {
-        res.status(200).json({ message: thread, user: req.user });
+        const unread = await userUnreadCount(
+          thread.messages,
+          req.user?.email as string
+        );
+        const otherUser = await getUserFromThread(
+          thread._id,
+          req?.user?.email as string
+        );
+        res
+          .status(200)
+          .json({
+            message: thread,
+            user: req.user,
+            unread: unread,
+            otherUser: otherUser,
+          });
       } else {
         res.status(404).json({ message: 'Thread not found' });
       }
