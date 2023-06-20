@@ -117,7 +117,7 @@ dist
 .dynamodb/
 
 # Dotenv file
-.env/
+# .env/
 
 # TernJS port file
 .tern-port
