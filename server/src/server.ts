@@ -10,6 +10,7 @@ import threadRoute from './routes/thread.routes';
 import messageRoute from './routes/message.routes';
 import cors from 'cors';
 import { tryConnect } from './db/db';
+import { CLIENT, PORT } from './constants/constants';
 
 config();
 
@@ -23,7 +24,7 @@ declare global {
 
 const app = express();
 
-app.use(cors({ origin: process.env.CLIENT as string }));
+app.use(cors({ origin: CLIENT as string }));
 app.use(urlencoded({ extended: true }));
 app.use(json());
 app.use(serializeUser);
@@ -33,8 +34,6 @@ app.use(threadRoute);
 app.use(loginRoute);
 app.use(logoutRoute);
 app.use(messageRoute);
-
-const PORT = process.env.PORT;
 
 tryConnect(() => {
   app.listen(PORT, () => {
