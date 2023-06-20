@@ -1,8 +1,6 @@
 import axios, { AxiosInstance } from 'axios';
 
-// config({ path: '../../' });
-
-const BASE = 'http://localhost:5000';
+const BASE = import.meta.env.VITE_APP_ENDPOINT;
 
 let instance: AxiosInstance | undefined;
 

@@ -15,6 +15,7 @@ import {
 import { Thread, threadFromDb } from '../models/thread.model';
 import mongoose, { ObjectId, isValidObjectId } from 'mongoose';
 import { getUser } from '../controllers/user.controller';
+import { userFromDb } from '../models/user.model';
 
 const messageRoute = Router();
 
@@ -33,7 +34,10 @@ messageRoute.get(`${path}/:id`, async (req: Request, res: Response) => {
     const thread = (await getThread('_id', id)) as threadFromDb;
     const messageIds = thread.messages;
     const messagesAreRead = await Promise.all(
-      messageIds.map(async (id) => await markMessageRead(id))
+      messageIds.map(
+        async (id) =>
+          await markMessageRead(id, req?.user?.email as userFromDb['email'])
+      )
     );
     const messagesP = messageIds.map(
       async (id) => (await Message.findById(id).lean()) as messageFromDb
@@ -58,8 +62,10 @@ messageRoute.get(`${path}/:id`, async (req: Request, res: Response) => {
 
 //Create Message
 messageRoute.post(path, async (req: Request, res: Response) => {
-  const message = req.body.message as message;
-  const { threadId, title, body, from, to } = message;
+  const from = req.user?.email;
+  const message = { ...req?.body.message, from: from } as message;
+  // const message = req.body.message as message;
+  const { threadId, title, body, to } = message;
   const otherUser = await getUser('email', to);
   if (!(title && body && from && to)) {
     console.log('Make sure you entered the correct fields');
@@ -151,9 +157,12 @@ messageRoute.patch(`${path}/:id`, async (req: Request, res: Response) => {
        */
     }
     const newMessageId = new mongoose.Types.ObjectId(id);
-    const message = await markMessageRead(newMessageId);
+    const message = await markMessageRead(
+      newMessageId,
+      req?.user?.email as userFromDb['email']
+    );
     if (message) {
-      const message = await getMessage('_id', id);
+      const message = await getMessage('_id', id, req?.user as userFromDb);
       res.status(200).json({ message: message });
     } else {
       res.status(404).json({ message: 'Could nont find the message' });

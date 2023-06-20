@@ -36,16 +36,14 @@ threadRoute.get(`/${path}/:id`, async (req: Request, res: Response) => {
         );
         const otherUser = await getUserFromThread(
           thread._id,
-          req?.user?.email as string
+          req?.user as userFromDb
         );
-        res
-          .status(200)
-          .json({
-            message: thread,
-            user: req.user,
-            unread: unread,
-            otherUser: otherUser,
-          });
+        res.status(200).json({
+          message: thread,
+          user: req.user,
+          unread: unread,
+          otherUser: otherUser,
+        });
       } else {
         res.status(404).json({ message: 'Thread not found' });
       }

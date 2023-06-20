@@ -11,22 +11,43 @@ import { createContext } from 'react';
 import { userFromDb } from './models/user.models';
 import SignUpPage from './pages/signuppage/signupPage';
 import MessagePage from './pages/messagepage/messagePage';
+import Layout from './layout/Layout';
+import Loading from './components/loading/Loading';
 
 const router = createBrowserRouter([
   {
     children: [
-      { path: '/', element: <HomePage /> },
+      {
+        path: '/',
+        element: (
+          <Layout>
+            <HomePage />
+          </Layout>
+        ),
+      },
       {
         path: '/login',
-        element: <LoginPage />,
+        element: (
+          <Layout>
+            <LoginPage />
+          </Layout>
+        ),
       },
       {
         path: '/signup',
-        element: <SignUpPage />,
+        element: (
+          <Layout>
+            <SignUpPage />
+          </Layout>
+        ),
       },
       {
         path: '/message/:id',
-        element: <MessagePage match={matchRoutes} location={location} />,
+        element: (
+          <Layout>
+            <MessagePage match={matchRoutes} location={location} />{' '}
+          </Layout>
+        ),
       },
     ],
   },
@@ -49,7 +70,7 @@ function App() {
       <RouterProvider
         router={router}
         future={{ v7_startTransition: true }}
-        fallbackElement={<div>Loading...</div>}
+        fallbackElement={<Loading />}
       />
     </authContext.Provider>
   );

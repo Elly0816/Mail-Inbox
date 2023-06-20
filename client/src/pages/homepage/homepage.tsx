@@ -1,21 +1,13 @@
 import { useNavigate } from 'react-router-dom';
 import './homepage.css';
-import React, {
-  Fragment,
-  ReactElement,
-  useContext,
-  useEffect,
-  useMemo,
-  useState,
-} from 'react';
+import React, { Fragment, useContext, useEffect } from 'react';
 import useFetch from '../../hooks/useFetch';
 import Loading from '../../components/loading/Loading';
 import { authContext } from '../../App';
-import { queryServer } from '../../utils/types/helper/helper';
 import useLocalStorage from '../../hooks/useLocalStorage';
 import InboxPage from '../inboxpage/inboxPage';
-import { getNameFromUser } from '../../utils/types/helper/helper';
 import Error from '../../components/error/Error';
+import { getNameFromUser } from '../../utils/types/helper/helper';
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface homePageProp {}
 
@@ -35,42 +27,13 @@ const HomePage: React.FC<homePageProp> = () => {
   const child =
     // (access && refresh) ||
     data?.user ? (
-      <div>
-        <h3>{`Hi ${getNameFromUser(user?.email as string)}`}</h3>
-        {data && <InboxPage />}
-        <button
-          onClick={() => {
-            queryServer({
-              method: 'post',
-              url: '/logout',
-              formdata: undefined,
-            })
-              .then((res) => {
-                console.log(res);
-                setAuth && setAuth(false);
-                setUser && setUser(undefined);
-                setAccess('undefined');
-                setRefresh('undefined');
-              })
-              .catch((err) => {
-                console.log(err);
-              })
-              .finally(() => {
-                navigate('/login');
-              });
-          }}
-        >
-          logout
-        </button>
-      </div>
+      <InboxPage />
     ) : loading ? (
       <Loading />
     ) : (
       // error && (
       <div>
-        <h2>
-          <Error message={error?.message as string} />
-        </h2>
+        <Error message={error?.message as string} />
       </div>
       // )
     );
@@ -98,7 +61,10 @@ const HomePage: React.FC<homePageProp> = () => {
 
   return (
     <Fragment>
-      {child}
+      <div className="place-content-center bg-blue-500">
+        {/* <h3>{`Hi ${getNameFromUser(user?.email as string)}`}</h3> */}
+        {child}
+      </div>
       {/* <div>{item as string}</div> */}
       {/* <div>Hi! I'm Eleazar</div> */}
     </Fragment>

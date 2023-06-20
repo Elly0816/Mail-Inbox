@@ -114,15 +114,16 @@ const createThread = async (
 // Get the other user on the thread
 const getUserFromThread = async (
   threadId: threadFromDb['_id'],
-  userEmail: userFromDb['email']
+  user: userFromDb
 ): Promise<string> => {
   const thread = await Thread.findById(threadId).lean();
   const firstMessageId = thread?.messages[0];
   const message = (await getMessage(
     '_id',
-    firstMessageId as string
+    firstMessageId as string,
+    user
   )) as messageFromDb;
-  return userEmail == message.from ? message.to : message.from;
+  return user.email == message.from ? message.to : message.from;
 };
 export {
   createThread,

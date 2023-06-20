@@ -1,9 +1,10 @@
 import { useContext, Fragment, useEffect, useState, useMemo } from 'react';
-import SignUpForm from '../../components/signupForm/signupForm';
+import SignUpForm from '../../components/signupForm/signupformAntD';
 import React from 'react';
 import './signupPage.css';
 import { authContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
+import Loading from '../../components/loading/Loading';
 
 // eslint-disable-next-line @typescript-eslint/no-empty-interface
 export interface loginPageProps {}
@@ -21,23 +22,13 @@ const SignUpPage: React.FC<loginPageProps> = () => {
   );
   const [loading, setLoading] = useState<boolean>(false);
 
-  const child = useMemo(() => {
-    return loading ? (
-      <div>Loading...</div>
-    ) : (
-      <Fragment>
-        <SignUpForm loading={loading} setLoading={setLoading} />
-        <button
-          onClick={() => {
-            navigate('/login');
-          }}
-        >
-          Click me to Login
-        </button>
-      </Fragment>
-    );
-  }, [loading]);
-  return <Fragment>{child}</Fragment>;
+  return !loading ? (
+    <div className="w-4/6 m-auto mt-20 p-10 bg-slate-300 rounded-lg">
+      <SignUpForm loading={loading} setLoading={setLoading} />
+    </div>
+  ) : (
+    <Loading />
+  );
 };
 
 export default SignUpPage;

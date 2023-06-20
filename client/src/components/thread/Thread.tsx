@@ -1,11 +1,8 @@
-import { Fragment, useMemo } from 'react';
-import { threadFromDb } from '../../models/thread.models';
+import { Fragment } from 'react';
 import './Thread.css';
 import useFetch from '../../hooks/useFetch';
 import Loading from '../loading/Loading';
 import Error from '../error/Error';
-import { useContext } from 'react';
-import { authContext } from '../../App';
 import { useNavigate } from 'react-router-dom';
 import { getNameFromUser } from '../../utils/types/helper/helper';
 
@@ -24,8 +21,13 @@ const Thread: React.FC<threadProp> = (id) => {
   const child = loading ? (
     <Loading />
   ) : data?.message ? (
-    <div>
+    <div
+      className={`thread w-full border-solid border-blue-400 border-2 rounded-md my-5 space-x-20 text-stone-50 ${
+        data.unread ? 'font-bold' : 'font-normal'
+      }`}
+    >
       <div
+        className="w-5/6 flex place-content-between"
         onClick={() => {
           navigate(`/message/:${data?.message._id}`);
         }}
@@ -33,13 +35,8 @@ const Thread: React.FC<threadProp> = (id) => {
         {(
           <h3>Click to open thread with {getNameFromUser(data?.otherUser)}</h3>
         ) || <Loading />}
-        {data?.unread > 0 ? (
-          <h4>
-            You have {data.unread} unread messages from{' '}
-            {data.messages.messages.length}
-          </h4>
-        ) : // <h4>You have no unread messages</h4>
-        null}
+
+        <h4>Unread: {data.unread}</h4>
       </div>
     </div>
   ) : error && !loading && !data ? (

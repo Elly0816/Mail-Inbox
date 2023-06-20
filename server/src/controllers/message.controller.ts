@@ -5,7 +5,8 @@ import { userFromDb } from '../models/user.model';
 
 const getMessage = async (
   field: keyof messageFromDb | null | undefined,
-  value: string | ObjectId
+  value: string | ObjectId,
+  user: userFromDb
 ): Promise<messageFromDb | messageFromDb[] | undefined> => {
   if (field) {
     switch (field) {
@@ -13,13 +14,13 @@ const getMessage = async (
         if (typeof value === 'string') {
           const id = new mongoose.Types.ObjectId(value);
           const message = (await Message.findById(id).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         } else {
           const message = (await Message.findById(
             value
           ).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         }
       case 'from':
@@ -28,13 +29,13 @@ const getMessage = async (
           const message = (await Message.findOne({
             from: id,
           }).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         } else {
           const message = (await Message.findOne({
             from: value,
           }).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         }
       case 'to':
@@ -43,13 +44,13 @@ const getMessage = async (
           const message = (await Message.findOne({
             to: id,
           }).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         } else {
           const message = (await Message.findOne({
             to: value,
           }).lean()) as messageFromDb;
-          await markMessageRead(message._id);
+          await markMessageRead(message._id, user.email);
           return message;
         }
       case 'read':
@@ -60,7 +61,7 @@ const getMessage = async (
     }
   } else {
     const message = (await Message.find().lean()) as messageFromDb;
-    await markMessageRead(message._id);
+    await markMessageRead(message._id, user.email);
     return message;
   }
 };
@@ -142,17 +143,26 @@ const deleteMessageFromThread = async (
 };
 
 const markMessageRead = async (
-  messageId: messageFromDb['_id']
+  messageId: messageFromDb['_id'],
+  userEmail: userFromDb['email']
 ): Promise<boolean> => {
-  const message = (await Message.findByIdAndUpdate(
-    messageId,
-    { $set: { read: true } },
-    { new: true }
+  /*If the sender has the same id as the user, don't mark it else, do */
+  const oldMessage = (await Message.findById(
+    messageId
   ).lean()) as messageFromDb;
-  if (message) {
-    return true;
+  if (oldMessage.from != userEmail) {
+    const message = (await Message.findByIdAndUpdate(
+      messageId,
+      { $set: { read: true } },
+      { new: true }
+    ).lean()) as messageFromDb;
+    if (message) {
+      return true;
+    } else {
+      return false;
+    }
   } else {
-    return false;
+    return true;
   }
 };
 
