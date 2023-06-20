@@ -9,6 +9,7 @@ import logoutRoute from './routes/logout.routes';
 import threadRoute from './routes/thread.routes';
 import messageRoute from './routes/message.routes';
 import cors from 'cors';
+import { tryConnect } from './db/db';
 
 config();
 
@@ -35,6 +36,8 @@ app.use(messageRoute);
 
 const PORT = process.env.PORT;
 
-app.listen(PORT, () => {
-  console.log(`Server Running on PORT: ${PORT}`);
+tryConnect(() => {
+  app.listen(PORT, () => {
+    console.log(`Server Running on PORT: ${PORT}`);
+  });
 });
