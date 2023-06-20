@@ -17,7 +17,8 @@ export enum Headers {
   headers = 'Access-Control-Expose-Headers',
 }
 
-const PORT = 5000;
+// const PORT = 5000;
+const PORT = 3000;
 const MONGOCONNECT =
   'mongodb+srv://elzoremmanuel:Odm1OjxLMxhWhlAo@cluster0.o2ixh5p.mongodb.net/?retryWrites=true&w=majority';
 const ACCESS = 'This is my access token secret';
